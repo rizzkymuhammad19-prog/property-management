@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createSurvey, updateSurvey } from "@/actions/surveys";
 import { Field, TextInput, Select, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 
 type SurveyDefaults = {
   id?: string;
@@ -14,12 +15,10 @@ type SurveyDefaults = {
 };
 
 export function SurveyForm({
-  onDone,
   leads,
   units,
   defaults,
 }: {
-  onDone: () => void;
   leads: { id: string; name: string }[];
   units: { id: string; label: string }[];
   defaults?: SurveyDefaults;
@@ -27,6 +26,7 @@ export function SurveyForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const close = useModalClose();
   const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -40,7 +40,7 @@ export function SurveyForm({
         } else {
           await createSurvey(formData);
         }
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan survei.");
@@ -83,7 +83,7 @@ export function SurveyForm({
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending}>

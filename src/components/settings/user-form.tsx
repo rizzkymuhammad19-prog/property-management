@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createUser, updateUser } from "@/actions/users";
 import { Field, TextInput, Select, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 import { ROLE_LABEL } from "@/lib/rbac";
 
 type UserDefaults = {
@@ -15,10 +16,11 @@ type UserDefaults = {
   area?: string | null;
 };
 
-export function UserForm({ onDone, defaults }: { onDone: () => void; defaults?: UserDefaults }) {
+export function UserForm({ defaults }: { defaults?: UserDefaults }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const close = useModalClose();
   const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -32,7 +34,7 @@ export function UserForm({ onDone, defaults }: { onDone: () => void; defaults?: 
         } else {
           await createUser(formData);
         }
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan user.");
@@ -79,7 +81,7 @@ export function UserForm({ onDone, defaults }: { onDone: () => void; defaults?: 
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending}>

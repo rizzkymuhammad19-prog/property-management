@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createKprApplication, updateKprApplication } from "@/actions/kpr";
 import { Field, TextInput, Select, Checkbox, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 import { FINANCING_TYPE_LABEL } from "@/lib/labels";
 
 type KprDefaults = {
@@ -19,17 +20,16 @@ type KprDefaults = {
 };
 
 export function KprForm({
-  onDone,
   bookings,
   defaults,
 }: {
-  onDone: () => void;
   bookings: { id: string; label: string }[];
   defaults?: KprDefaults;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const close = useModalClose();
   const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -43,7 +43,7 @@ export function KprForm({
         } else {
           await createKprApplication(formData);
         }
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan pengajuan KPR.");
@@ -113,7 +113,7 @@ export function KprForm({
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending || (!isEdit && bookings.length === 0)}>

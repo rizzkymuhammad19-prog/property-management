@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createLead, updateLead } from "@/actions/leads";
 import { Field, TextInput, Select, Textarea, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 
 type LeadDefaults = {
   id?: string;
@@ -22,14 +23,12 @@ type LeadDefaults = {
 };
 
 export function LeadForm({
-  onDone,
   projects,
   sources,
   salesUsers,
   showSalesPicker,
   defaults,
 }: {
-  onDone: () => void;
   projects: { id: string; name: string }[];
   sources: { id: string; name: string }[];
   salesUsers: { id: string; name: string }[];
@@ -39,6 +38,7 @@ export function LeadForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const close = useModalClose();
   const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -52,7 +52,7 @@ export function LeadForm({
         } else {
           await createLead(formData);
         }
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan lead.");
@@ -136,7 +136,7 @@ export function LeadForm({
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending}>

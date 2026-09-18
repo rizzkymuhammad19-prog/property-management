@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createTask, updateTask } from "@/actions/tasks";
 import { Field, TextInput, Select, Textarea, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 import { TASK_TYPE_LABEL } from "@/lib/labels";
 
 type TaskDefaults = {
@@ -18,13 +19,11 @@ type TaskDefaults = {
 };
 
 export function TaskForm({
-  onDone,
   leads,
   users,
   showAssignee,
   defaults,
 }: {
-  onDone: () => void;
   leads: { id: string; name: string }[];
   users: { id: string; name: string }[];
   showAssignee: boolean;
@@ -33,6 +32,7 @@ export function TaskForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const close = useModalClose();
   const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -46,7 +46,7 @@ export function TaskForm({
         } else {
           await createTask(formData);
         }
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan tugas.");
@@ -106,7 +106,7 @@ export function TaskForm({
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending}>

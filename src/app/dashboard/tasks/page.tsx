@@ -54,14 +54,11 @@ export default async function TasksPage() {
             </Button>
           }
         >
-          {(close) => (
-            <TaskForm
-              onDone={close}
-              leads={leads}
-              users={users.map((u) => ({ id: u.id, name: u.name }))}
-              showAssignee={!isSales}
-            />
-          )}
+          <TaskForm
+            leads={leads}
+            users={users.map((u) => ({ id: u.id, name: u.name }))}
+            showAssignee={!isSales}
+          />
         </Modal>
       </div>
 
@@ -101,23 +98,20 @@ export default async function TasksPage() {
                         </span>
                       }
                     >
-                      {(close) => (
-                        <TaskForm
-                          onDone={close}
-                          leads={leads}
-                          users={users.map((u) => ({ id: u.id, name: u.name }))}
-                          showAssignee={!isSales}
-                          defaults={{
-                            id: t.id,
-                            type: t.type,
-                            priority: t.priority,
-                            leadId: t.leadId,
-                            dueDate: toDateInput(t.dueDate),
-                            userId: t.userId,
-                            notes: t.notes,
-                          }}
-                        />
-                      )}
+                      <TaskForm
+                        leads={leads}
+                        users={users.map((u) => ({ id: u.id, name: u.name }))}
+                        showAssignee={!isSales}
+                        defaults={{
+                          id: t.id,
+                          type: t.type,
+                          priority: t.priority,
+                          leadId: t.leadId,
+                          dueDate: toDateInput(t.dueDate),
+                          userId: t.userId,
+                          notes: t.notes,
+                        }}
+                      />
                     </Modal>
                     <ActionButton
                       action={deleteTask.bind(null, t.id)}

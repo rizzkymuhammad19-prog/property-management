@@ -58,7 +58,7 @@ export default async function FollowUpsPage() {
             </Button>
           }
         >
-          {(close) => <FollowUpForm onDone={close} leads={leads} />}
+          <FollowUpForm leads={leads} />
         </Modal>
       </div>
 
@@ -111,19 +111,16 @@ export default async function FollowUpsPage() {
                           </span>
                         }
                       >
-                        {(close) => (
-                          <FollowUpForm
-                            onDone={close}
-                            leads={leads}
-                            defaults={{
-                              id: f.id,
-                              leadId: f.leadId,
-                              scheduledAt: toDatetimeLocal(f.scheduledAt),
-                              contactMethod: f.contactMethod,
-                              notes: f.notes,
-                            }}
-                          />
-                        )}
+                        <FollowUpForm
+                          leads={leads}
+                          defaults={{
+                            id: f.id,
+                            leadId: f.leadId,
+                            scheduledAt: toDatetimeLocal(f.scheduledAt),
+                            contactMethod: f.contactMethod,
+                            notes: f.notes,
+                          }}
+                        />
                       </Modal>
                       {!f.completedAt && (
                         <ActionButton

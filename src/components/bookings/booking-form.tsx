@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createBooking, updateBooking } from "@/actions/bookings";
 import { Field, TextInput, Select, Textarea, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 
 type BookingDefaults = {
   id?: string;
@@ -15,14 +16,12 @@ type BookingDefaults = {
 };
 
 export function BookingForm({
-  onDone,
   leads,
   units,
   salesUsers,
   showSalesPicker,
   defaults,
 }: {
-  onDone: () => void;
   leads: { id: string; name: string }[];
   units: { id: string; label: string; price: number; dp: number }[];
   salesUsers: { id: string; name: string }[];
@@ -35,6 +34,7 @@ export function BookingForm({
     { id: string; label: string; price: number; dp: number } | undefined
   >(units[0]);
   const router = useRouter();
+  const close = useModalClose();
   const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -48,7 +48,7 @@ export function BookingForm({
         } else {
           await createBooking(formData);
         }
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan booking.");
@@ -135,7 +135,7 @@ export function BookingForm({
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending || (!isEdit && units.length === 0)}>

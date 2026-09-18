@@ -72,15 +72,12 @@ export default async function LeadsPage() {
             </Button>
           }
         >
-          {(close) => (
-            <LeadForm
-              onDone={close}
-              projects={projects.map((p) => ({ id: p.id, name: p.name }))}
-              sources={sources.map((s) => ({ id: s.id, name: s.name }))}
-              salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
-              showSalesPicker={role !== "SALES"}
-            />
-          )}
+          <LeadForm
+            projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+            sources={sources.map((s) => ({ id: s.id, name: s.name }))}
+            salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+            showSalesPicker={role !== "SALES"}
+          />
         </Modal>
       </div>
 
@@ -127,29 +124,26 @@ export default async function LeadsPage() {
                         </span>
                       }
                     >
-                      {(close) => (
-                        <LeadForm
-                          onDone={close}
-                          projects={projects.map((p) => ({ id: p.id, name: p.name }))}
-                          sources={sources.map((s) => ({ id: s.id, name: s.name }))}
-                          salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
-                          showSalesPicker={role !== "SALES"}
-                          defaults={{
-                            id: lead.id,
-                            name: lead.name,
-                            whatsapp: lead.whatsapp,
-                            email: lead.email,
-                            domisili: lead.domisili,
-                            pekerjaan: lead.pekerjaan,
-                            budget: lead.budget,
-                            tipeRumahDiminati: lead.tipeRumahDiminati,
-                            sourceId: lead.sourceId,
-                            salesId: lead.salesId,
-                            priority: lead.priority,
-                            notes: lead.notes,
-                          }}
-                        />
-                      )}
+                      <LeadForm
+                        projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+                        sources={sources.map((s) => ({ id: s.id, name: s.name }))}
+                        salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+                        showSalesPicker={role !== "SALES"}
+                        defaults={{
+                          id: lead.id,
+                          name: lead.name,
+                          whatsapp: lead.whatsapp,
+                          email: lead.email,
+                          domisili: lead.domisili,
+                          pekerjaan: lead.pekerjaan,
+                          budget: lead.budget,
+                          tipeRumahDiminati: lead.tipeRumahDiminati,
+                          sourceId: lead.sourceId,
+                          salesId: lead.salesId,
+                          priority: lead.priority,
+                          notes: lead.notes,
+                        }}
+                      />
                     </Modal>
                     {canDelete && (
                       <ActionButton

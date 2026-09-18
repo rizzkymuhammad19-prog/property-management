@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { completeSurvey } from "@/actions/surveys";
 import { Field, Textarea, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 
-export function CompleteSurveyForm({ onDone, surveyId }: { onDone: () => void; surveyId: string }) {
+export function CompleteSurveyForm({ surveyId }: { surveyId: string }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const close = useModalClose();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -18,7 +20,7 @@ export function CompleteSurveyForm({ onDone, surveyId }: { onDone: () => void; s
     startTransition(async () => {
       try {
         await completeSurvey(surveyId, formData);
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan hasil survei.");
@@ -35,7 +37,7 @@ export function CompleteSurveyForm({ onDone, surveyId }: { onDone: () => void; s
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending}>

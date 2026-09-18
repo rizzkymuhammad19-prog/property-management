@@ -53,15 +53,12 @@ export default async function PipelinePage() {
             </Button>
           }
         >
-          {(close) => (
-            <LeadForm
-              onDone={close}
-              projects={projects.map((p) => ({ id: p.id, name: p.name }))}
-              sources={sources.map((s) => ({ id: s.id, name: s.name }))}
-              salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
-              showSalesPicker={role !== "SALES"}
-            />
-          )}
+          <LeadForm
+            projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+            sources={sources.map((s) => ({ id: s.id, name: s.name }))}
+            salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+            showSalesPicker={role !== "SALES"}
+          />
         </Modal>
       </div>
 

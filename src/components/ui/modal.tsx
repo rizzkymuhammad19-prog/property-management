@@ -1,8 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Server Component pages cannot pass a plain function (e.g. a render-prop
+// `children`) to this Client Component — React can't serialize a raw JS
+// closure across the server/client boundary ("Functions cannot be passed
+// directly to Client Components..."). Instead, Modal's `children` is normal,
+// already-rendered JSX (which Next.js *can* pass from a Server Component),
+// and it exposes its own "close" function through context. Any form rendered
+// inside a Modal calls useModalClose() to get it instead of receiving it as
+// a prop.
+const ModalCloseContext = createContext<() => void>(() => {});
+
+export function useModalClose() {
+  return useContext(ModalCloseContext);
+}
 
 export function Modal({
   trigger,
@@ -15,9 +29,10 @@ export function Modal({
   title: string;
   description?: string;
   size?: "sm" | "md" | "lg";
-  children: (close: () => void) => React.ReactNode;
+  children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
 
   const maxWidth = {
     sm: "max-w-sm",
@@ -57,7 +72,7 @@ export function Modal({
                 <X className="h-5 w-5" />
               </button>
             </div>
-            {children(() => setOpen(false))}
+            <ModalCloseContext.Provider value={close}>{children}</ModalCloseContext.Provider>
           </div>
         </div>
       )}

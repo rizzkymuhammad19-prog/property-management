@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createContent, updateContent } from "@/actions/content";
 import { Field, TextInput, Select, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 import { CAMPAIGN_PLATFORM_LABEL } from "@/lib/labels";
 
 type ContentDefaults = {
@@ -29,17 +30,16 @@ function toDateInput(d?: Date | null) {
 }
 
 export function ContentForm({
-  onDone,
   campaigns,
   defaults,
 }: {
-  onDone: () => void;
   campaigns: { id: string; name: string }[];
   defaults?: ContentDefaults;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const close = useModalClose();
   const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -53,7 +53,7 @@ export function ContentForm({
         } else {
           await createContent(formData);
         }
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan konten.");
@@ -119,7 +119,7 @@ export function ContentForm({
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending}>

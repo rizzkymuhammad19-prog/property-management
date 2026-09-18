@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 import { upsertSalesTarget } from "@/actions/sales-targets";
 import { Field, TextInput, Select, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 
 export function SalesTargetForm({
-  onDone,
   salesUsers,
   projects,
   defaultUserId,
   defaultPeriod,
 }: {
-  onDone: () => void;
   salesUsers: { id: string; name: string }[];
   projects: { id: string; name: string }[];
   defaultUserId?: string;
@@ -22,6 +21,7 @@ export function SalesTargetForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const close = useModalClose();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,7 +30,7 @@ export function SalesTargetForm({
     startTransition(async () => {
       try {
         await upsertSalesTarget(formData);
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan target.");
@@ -80,7 +80,7 @@ export function SalesTargetForm({
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending}>

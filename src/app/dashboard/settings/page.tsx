@@ -27,7 +27,7 @@ export default async function SettingsPage() {
             </Button>
           }
         >
-          {(close) => <UserForm onDone={close} />}
+          <UserForm />
         </Modal>
       </div>
 
@@ -70,12 +70,9 @@ export default async function SettingsPage() {
                         </span>
                       }
                     >
-                      {(close) => (
-                        <UserForm
-                          onDone={close}
-                          defaults={{ id: u.id, name: u.name, role: u.role, phone: u.phone, area: u.area }}
-                        />
-                      )}
+                      <UserForm
+                        defaults={{ id: u.id, name: u.name, role: u.role, phone: u.phone, area: u.area }}
+                      />
                     </Modal>
                     <ActionButton
                       action={toggleUserActive.bind(null, u.id, !u.active)}

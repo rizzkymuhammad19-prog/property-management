@@ -64,14 +64,11 @@ export default async function SalesPage() {
             </Button>
           }
         >
-          {(close) => (
-            <SalesTargetForm
-              onDone={close}
-              salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
-              projects={projects.map((p) => ({ id: p.id, name: p.name }))}
-              defaultPeriod={period}
-            />
-          )}
+          <SalesTargetForm
+            salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+            projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+            defaultPeriod={period}
+          />
         </Modal>
       </div>
 
@@ -135,15 +132,12 @@ export default async function SalesPage() {
                         </span>
                       }
                     >
-                      {(close) => (
-                        <SalesTargetForm
-                          onDone={close}
-                          salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
-                          projects={projects.map((pr) => ({ id: pr.id, name: pr.name }))}
-                          defaultUserId={p.sales.id}
-                          defaultPeriod={period}
-                        />
-                      )}
+                      <SalesTargetForm
+                        salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+                        projects={projects.map((pr) => ({ id: pr.id, name: pr.name }))}
+                        defaultUserId={p.sales.id}
+                        defaultPeriod={period}
+                      />
                     </Modal>
                     {p.target && (
                       <ActionButton

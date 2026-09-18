@@ -34,9 +34,7 @@ export default async function CampaignsPage() {
             </Button>
           }
         >
-          {(close) => (
-            <CampaignForm onDone={close} projects={projects.map((p) => ({ id: p.id, name: p.name }))} />
-          )}
+          <CampaignForm projects={projects.map((p) => ({ id: p.id, name: p.name }))} />
         </Modal>
       </div>
 
@@ -73,22 +71,19 @@ export default async function CampaignsPage() {
                   </span>
                 }
               >
-                {(close) => (
-                  <CampaignForm
-                    onDone={close}
-                    projects={projects.map((p) => ({ id: p.id, name: p.name }))}
-                    defaults={{
-                      id: c.id,
-                      name: c.name,
-                      projectId: c.projectId,
-                      platform: c.platform,
-                      objective: c.objective,
-                      budget: c.budget,
-                      startDate: c.startDate,
-                      endDate: c.endDate,
-                    }}
-                  />
-                )}
+                <CampaignForm
+                  projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+                  defaults={{
+                    id: c.id,
+                    name: c.name,
+                    projectId: c.projectId,
+                    platform: c.platform,
+                    objective: c.objective,
+                    budget: c.budget,
+                    startDate: c.startDate,
+                    endDate: c.endDate,
+                  }}
+                />
               </Modal>
               <ActionButton
                 action={deleteCampaign.bind(null, c.id)}

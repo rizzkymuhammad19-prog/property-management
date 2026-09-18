@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createFollowUp, updateFollowUp } from "@/actions/follow-ups";
 import { Field, TextInput, Select, Textarea, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import { useModalClose } from "@/components/ui/modal";
 import { CONTACT_METHOD_LABEL } from "@/lib/labels";
 
 type FollowUpDefaults = {
@@ -16,17 +17,16 @@ type FollowUpDefaults = {
 };
 
 export function FollowUpForm({
-  onDone,
   leads,
   defaults,
 }: {
-  onDone: () => void;
   leads: { id: string; name: string }[];
   defaults?: FollowUpDefaults;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const close = useModalClose();
   const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -40,7 +40,7 @@ export function FollowUpForm({
         } else {
           await createFollowUp(formData);
         }
-        onDone();
+        close();
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal menyimpan follow-up.");
@@ -87,7 +87,7 @@ export function FollowUpForm({
       <FormError message={error} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={close}>
           Batal
         </Button>
         <Button type="submit" disabled={pending}>

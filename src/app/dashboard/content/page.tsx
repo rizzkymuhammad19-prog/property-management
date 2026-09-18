@@ -34,9 +34,7 @@ export default async function ContentPage() {
             </Button>
           }
         >
-          {(close) => (
-            <ContentForm onDone={close} campaigns={campaigns.map((c) => ({ id: c.id, name: c.name }))} />
-          )}
+          <ContentForm campaigns={campaigns.map((c) => ({ id: c.id, name: c.name }))} />
         </Modal>
       </div>
 
@@ -83,27 +81,24 @@ export default async function ContentPage() {
                         </span>
                       }
                     >
-                      {(close) => (
-                        <ContentForm
-                          onDone={close}
-                          campaigns={campaigns.map((cm) => ({ id: cm.id, name: cm.name }))}
-                          defaults={{
-                            id: c.id,
-                            title: c.title,
-                            campaignId: c.campaignId,
-                            platform: c.platform,
-                            contentType: c.contentType,
-                            publishDate: c.publishDate,
-                            views: c.views,
-                            reach: c.reach,
-                            engagement: c.engagement,
-                            leadsCount: c.leadsCount,
-                            surveyCount: c.surveyCount,
-                            bookingCount: c.bookingCount,
-                            revenue: c.revenue,
-                          }}
-                        />
-                      )}
+                      <ContentForm
+                        campaigns={campaigns.map((cm) => ({ id: cm.id, name: cm.name }))}
+                        defaults={{
+                          id: c.id,
+                          title: c.title,
+                          campaignId: c.campaignId,
+                          platform: c.platform,
+                          contentType: c.contentType,
+                          publishDate: c.publishDate,
+                          views: c.views,
+                          reach: c.reach,
+                          engagement: c.engagement,
+                          leadsCount: c.leadsCount,
+                          surveyCount: c.surveyCount,
+                          bookingCount: c.bookingCount,
+                          revenue: c.revenue,
+                        }}
+                      />
                     </Modal>
                     <ActionButton
                       action={deleteContent.bind(null, c.id)}

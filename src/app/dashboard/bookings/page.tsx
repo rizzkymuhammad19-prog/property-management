@@ -67,15 +67,12 @@ export default async function BookingsPage() {
             </Button>
           }
         >
-          {(close) => (
-            <BookingForm
-              onDone={close}
-              leads={leads}
-              units={unitOptions}
-              salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
-              showSalesPicker={!isSales}
-            />
-          )}
+          <BookingForm
+            leads={leads}
+            units={unitOptions}
+            salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+            showSalesPicker={!isSales}
+          />
         </Modal>
       </div>
 
@@ -126,22 +123,19 @@ export default async function BookingsPage() {
                           </span>
                         }
                       >
-                        {(close) => (
-                          <BookingForm
-                            onDone={close}
-                            leads={leads}
-                            units={unitOptions}
-                            salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
-                            showSalesPicker={!isSales}
-                            defaults={{
-                              id: b.id,
-                              bookingFee: b.bookingFee,
-                              price: b.price,
-                              dp: b.dp,
-                              notes: b.notes,
-                            }}
-                          />
-                        )}
+                        <BookingForm
+                          leads={leads}
+                          units={unitOptions}
+                          salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+                          showSalesPicker={!isSales}
+                          defaults={{
+                            id: b.id,
+                            bookingFee: b.bookingFee,
+                            price: b.price,
+                            dp: b.dp,
+                            notes: b.notes,
+                          }}
+                        />
                       </Modal>
                       {b.paymentStatus !== "PAID" && (
                         <Modal
@@ -153,7 +147,7 @@ export default async function BookingsPage() {
                             </span>
                           }
                         >
-                          {(close) => <PaymentForm onDone={close} bookingId={b.id} remaining={remaining} />}
+                          <PaymentForm bookingId={b.id} remaining={remaining} />
                         </Modal>
                       )}
                       {canDelete && (

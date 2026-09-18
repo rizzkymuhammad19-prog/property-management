@@ -41,15 +41,12 @@ export default async function KprPage() {
             </Button>
           }
         >
-          {(close) => (
-            <KprForm
-              onDone={close}
-              bookings={bookingsWithoutKpr.map((b) => ({
-                id: b.id,
-                label: `${b.lead.name} — Blok ${b.unit.block.name} No. ${b.unit.unitNumber}`,
-              }))}
-            />
-          )}
+          <KprForm
+            bookings={bookingsWithoutKpr.map((b) => ({
+              id: b.id,
+              label: `${b.lead.name} — Blok ${b.unit.block.name} No. ${b.unit.unitNumber}`,
+            }))}
+          />
         </Modal>
       </div>
 
@@ -103,25 +100,22 @@ export default async function KprPage() {
                           </span>
                         }
                       >
-                        {(close) => (
-                          <KprForm
-                            onDone={close}
-                            bookings={bookingsWithoutKpr.map((b) => ({
-                              id: b.id,
-                              label: `${b.lead.name} — Blok ${b.unit.block.name} No. ${b.unit.unitNumber}`,
-                            }))}
-                            defaults={{
-                              id: k.id,
-                              bank: k.bank,
-                              financingType: k.financingType,
-                              plafond: k.plafond,
-                              tenor: k.tenor,
-                              npwp: k.npwp,
-                              mbrEligible: k.mbrEligible,
-                              suratBelumPunyaRumah: k.suratBelumPunyaRumah,
-                            }}
-                          />
-                        )}
+                        <KprForm
+                          bookings={bookingsWithoutKpr.map((b) => ({
+                            id: b.id,
+                            label: `${b.lead.name} — Blok ${b.unit.block.name} No. ${b.unit.unitNumber}`,
+                          }))}
+                          defaults={{
+                            id: k.id,
+                            bank: k.bank,
+                            financingType: k.financingType,
+                            plafond: k.plafond,
+                            tenor: k.tenor,
+                            npwp: k.npwp,
+                            mbrEligible: k.mbrEligible,
+                            suratBelumPunyaRumah: k.suratBelumPunyaRumah,
+                          }}
+                        />
                       </Modal>
                       <ActionButton
                         action={deleteKprApplication.bind(null, k.id)}

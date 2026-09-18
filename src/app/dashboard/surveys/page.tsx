@@ -54,7 +54,7 @@ export default async function SurveysPage() {
             </Button>
           }
         >
-          {(close) => <SurveyForm onDone={close} leads={leads} units={unitOptions} />}
+          <SurveyForm leads={leads} units={unitOptions} />
         </Modal>
       </div>
 
@@ -97,19 +97,16 @@ export default async function SurveysPage() {
                         </span>
                       }
                     >
-                      {(close) => (
-                        <SurveyForm
-                          onDone={close}
-                          leads={leads}
-                          units={unitOptions}
-                          defaults={{
-                            id: s.id,
-                            leadId: s.leadId,
-                            unitId: s.unitId,
-                            scheduledAt: toDatetimeLocal(s.scheduledAt),
-                          }}
-                        />
-                      )}
+                      <SurveyForm
+                        leads={leads}
+                        units={unitOptions}
+                        defaults={{
+                          id: s.id,
+                          leadId: s.leadId,
+                          unitId: s.unitId,
+                          scheduledAt: toDatetimeLocal(s.scheduledAt),
+                        }}
+                      />
                     </Modal>
                     {!s.completedAt && (
                       <Modal
@@ -121,7 +118,7 @@ export default async function SurveysPage() {
                           </span>
                         }
                       >
-                        {(close) => <CompleteSurveyForm onDone={close} surveyId={s.id} />}
+                        <CompleteSurveyForm surveyId={s.id} />
                       </Modal>
                     )}
                     <ActionButton
