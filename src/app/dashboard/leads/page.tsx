@@ -1,7 +1,13 @@
 import { getServerSession } from "next-auth";
+import { Plus, Trash2 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
+import { ActionButton } from "@/components/action-button";
+import { LeadForm } from "@/components/leads/lead-form";
+import { deleteLead } from "@/actions/leads";
 import { formatDate } from "@/lib/utils";
 import { LEAD_STATUS_LABEL, LEAD_PRIORITY_LABEL } from "@/lib/labels";
 
@@ -31,22 +37,51 @@ export default async function LeadsPage() {
   // not just hidden in the UI.
   const where = role === "SALES" ? { salesId: session?.user.id } : {};
 
-  const leads = await prisma.lead.findMany({
-    where,
-    include: { sales: true, source: true },
-    orderBy: { tanggalMasuk: "desc" },
-    take: 50,
-  });
+  const [leads, projects, sources, salesUsers] = await Promise.all([
+    prisma.lead.findMany({
+      where,
+      include: { sales: true, source: true },
+      orderBy: { tanggalMasuk: "desc" },
+      take: 50,
+    }),
+    prisma.project.findMany({ orderBy: { name: "asc" } }),
+    prisma.leadSource.findMany({ orderBy: { name: "asc" } }),
+    prisma.user.findMany({ where: { role: "SALES", active: true }, orderBy: { name: "asc" } }),
+  ]);
+
+  const canDelete = role && ["SUPER_ADMIN", "OWNER", "SALES_MANAGER", "ADMIN"].includes(role);
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-gray-900">Leads (CRM)</h1>
-        <p className="text-sm text-gray-500">
-          {role === "SALES"
-            ? "Menampilkan leads milik Anda saja."
-            : `Menampilkan ${leads.length} leads terbaru.`}
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-gray-900">Leads (CRM)</h1>
+          <p className="text-sm text-gray-500">
+            {role === "SALES"
+              ? "Menampilkan leads milik Anda saja."
+              : `Menampilkan ${leads.length} leads terbaru.`}
+          </p>
+        </div>
+        <Modal
+          title="Tambah Lead Baru"
+          description="Data lead akan langsung tersinkron ke seluruh modul."
+          size="lg"
+          trigger={
+            <Button size="sm">
+              <Plus className="h-4 w-4" /> Tambah Lead
+            </Button>
+          }
+        >
+          {(close) => (
+            <LeadForm
+              onDone={close}
+              projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+              sources={sources.map((s) => ({ id: s.id, name: s.name }))}
+              salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+              showSalesPicker={role !== "SALES"}
+            />
+          )}
+        </Modal>
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-surface-border bg-white shadow-card">
@@ -59,6 +94,7 @@ export default async function LeadsPage() {
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Follow Up Berikutnya</th>
               <th className="px-4 py-3">Prioritas</th>
+              {canDelete && <th className="px-4 py-3" />}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -80,6 +116,16 @@ export default async function LeadsPage() {
                     {LEAD_PRIORITY_LABEL[lead.priority] ?? lead.priority}
                   </Badge>
                 </td>
+                {canDelete && (
+                  <td className="px-4 py-3">
+                    <ActionButton
+                      action={deleteLead.bind(null, lead.id)}
+                      confirmMessage={`Hapus lead "${lead.name}"? Aksi ini tidak bisa dibatalkan.`}
+                      icon={Trash2}
+                      variant="danger"
+                    />
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

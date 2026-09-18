@@ -1,10 +1,13 @@
 # PROPERTY MANAGEMENT
 
-Integrated Property Sales & Marketing System — scaffold Fase 2–6 dari roadmap
-(arsitektur, skema database, auth & RBAC, dashboard dengan dummy data, unit
-management dasar). Modul CRM/pipeline/booking/KPR lainnya sudah punya skema
-database & RBAC lengkap, UI-nya menyusul di fase berikutnya (lihat placeholder
-di tiap halaman sidebar).
+Integrated Property Sales & Marketing System. Semua 16 modul di sidebar sudah
+berfungsi penuh dengan data nyata dari database (bukan placeholder lagi):
+Dashboard, Unit, Leads (CRM), Pipeline Kanban (drag & drop), Follow Up,
+Survei, Booking + pembayaran, KPR + status pipeline, KPI & target Sales,
+Marketing overview, Kampanye, Konten, Laporan (chart), Tugas, Notifikasi, dan
+manajemen User (Settings). Tambah/edit/hapus data langsung dari UI lewat
+Next.js Server Actions, dengan RBAC ditegakkan di setiap aksi (bukan cuma di
+tampilan).
 
 ## Tech stack
 
@@ -49,10 +52,16 @@ src/lib/auth.ts        Konfigurasi Auth.js (credentials provider)
 src/lib/rbac.ts        Peta modul -> role yang boleh akses
 src/middleware.ts       Proteksi route /dashboard/* berdasarkan role
 src/app/dashboard/      Dashboard shell (sidebar, topbar) + tiap modul
+src/actions/            Server Actions — semua tambah/edit/hapus/ubah status
+                        data (create/update/delete), tiap fungsi cek role &
+                        kepemilikan data sendiri sebelum mengubah apa pun
+src/components/         Form modal, tombol aksi, kanban board, chart, dll —
+                        dikelompokkan per modul
 ```
 
-RBAC ditegakkan dua kali: di `middleware.ts` (blokir navigasi ke modul yang
-tidak diizinkan) dan di level query (contoh: `src/app/dashboard/leads/page.tsx`
+RBAC ditegakkan tiga kali: di `middleware.ts` (blokir navigasi ke modul yang
+tidak diizinkan), di setiap Server Action di `src/actions/` (blokir aksi API
+walau URL-nya diakses langsung), dan di level query (contoh: `src/app/dashboard/leads/page.tsx`
 memfilter `salesId` untuk role SALES) — jadi sales tidak bisa melihat lead
 sales lain lewat cara apa pun.
 
