@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { UNIT_STATUS_LABEL } from "@/lib/labels";
 
 const STATUS_STYLE: Record<string, string> = {
   AVAILABLE: "bg-green-100 text-green-700",
@@ -16,7 +17,7 @@ export function UnitStatusBadge({ status }: { status: string }) {
         STATUS_STYLE[status] ?? "bg-gray-100 text-gray-600"
       )}
     >
-      {status}
+      {UNIT_STATUS_LABEL[status] ?? status}
     </span>
   );
 }

@@ -3,13 +3,49 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: system-ui, -apple-system, sans-serif;
+}
+
+* {
+  border-color: theme("colors.surface.border");
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  @apply bg-surface-subtle text-gray-900 antialiased;
+  font-feature-settings: "cv11", "ss01";
+}
+
+::selection {
+  background-color: theme("colors.brand.200");
 }
 
 .status-dot {
   @apply inline-block h-2.5 w-2.5 rounded-full;
+}
+
+/* Slim, unobtrusive scrollbars for the sidebar / long lists */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.35s ease-out both;
 }
