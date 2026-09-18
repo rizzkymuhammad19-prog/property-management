@@ -1,0 +1,451 @@
+// PROPERTY MANAGEMENT — Prisma schema
+// Mirrors the ERD in the requirements document (section 9) and the
+// database architecture table (section 8).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum Role {
+  SUPER_ADMIN
+  OWNER
+  SALES_MANAGER
+  SALES
+  ADMIN
+  DIGITAL_MARKETING
+}
+
+enum UnitStatus {
+  AVAILABLE
+  HOLD
+  BOOKED
+  KPR
+  SOLD
+}
+
+enum FinancingType {
+  SUBSIDIZED_FLPP
+  SUBSIDIZED_BP2BT
+  COMMERCIAL
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  SURVEY
+  FOLLOW_UP
+  BOOKING
+  KPR
+  AKAD
+  LOST
+}
+
+enum LeadPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum SourceChannel {
+  INSTAGRAM
+  FACEBOOK
+  TIKTOK
+  GOOGLE
+  WEBSITE
+  WHATSAPP
+  REFERRAL
+  WALK_IN
+  EVENT
+  MARKETPLACE
+  OTHER
+}
+
+enum CampaignPlatform {
+  META_ADS
+  INSTAGRAM
+  FACEBOOK
+  TIKTOK
+  GOOGLE_ADS
+  ORGANIC
+  EVENT
+  REFERRAL
+}
+
+enum ContactMethod {
+  WHATSAPP
+  PHONE_CALL
+  SMS
+  MEETING
+  SURVEY
+  OTHER
+}
+
+enum BookingPaymentStatus {
+  PENDING
+  PARTIAL
+  PAID
+}
+
+enum KprStatus {
+  SUBMITTED
+  ANALYSIS
+  SURVEY_BANK
+  APPROVED
+  REJECTED
+  AKAD
+}
+
+enum TaskType {
+  CALL
+  WHATSAPP
+  FOLLOW_UP
+  SURVEY
+  MEETING
+  PRESENTATION
+  CLOSING
+  DOCUMENT
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+// ---------- Models ----------
+
+model User {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  passwordHash   String
+  role           Role
+  phone          String?
+  photoUrl       String?
+  area           String?
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  leads           Lead[]           @relation("LeadSales")
+  bookings        Booking[]        @relation("BookingSales")
+  kprApplications KprApplication[] @relation("KprSales")
+  salesTargets    SalesTarget[]
+  tasks           Task[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  followUps       FollowUp[]
+  salesActivities SalesActivity[]
+
+  @@map("users")
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  city      String?
+  priceFrom Float?
+  createdAt DateTime @default(now())
+
+  blocks       Block[]
+  leads        Lead[]
+  campaigns    Campaign[]
+  salesTargets SalesTarget[]
+
+  @@map("projects")
+}
+
+model Block {
+  id        String @id @default(uuid())
+  projectId String
+  name      String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  units   Unit[]
+
+  @@unique([projectId, name])
+  @@map("blocks")
+}
+
+model Unit {
+  id                   String        @id @default(uuid())
+  blockId              String
+  unitNumber           String
+  type                 String
+  landArea             Float
+  buildingArea         Float
+  price                Float
+  dp                   Float
+  estimatedInstallment Float
+  status               UnitStatus    @default(AVAILABLE)
+  financingScheme      FinancingType?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  block           Block            @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  surveys         Survey[]
+  bookings        Booking[]
+  kprApplications KprApplication[]
+
+  @@unique([blockId, unitNumber])
+  @@map("units")
+}
+
+model LeadSource {
+  id   String        @id @default(uuid())
+  name SourceChannel @unique
+
+  leads Lead[]
+
+  @@map("lead_sources")
+}
+
+model Campaign {
+  id         String           @id @default(uuid())
+  projectId  String
+  name       String
+  platform   CampaignPlatform
+  objective  String?
+  budget     Float?
+  startDate  DateTime?
+  endDate    DateTime?
+  createdAt  DateTime         @default(now())
+
+  project Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  leads   Lead[]
+  content Content[]
+
+  @@map("campaigns")
+}
+
+model Lead {
+  id                   String       @id @default(uuid())
+  projectId            String
+  name                 String
+  whatsapp             String
+  email                String?
+  domisili             String?
+  pekerjaan            String?
+  penghasilan          Float?
+  statusKeluarga       String?
+  jumlahTanggungan     Int?
+  budget               Float?
+  kemampuanDp          Float?
+  tipeRumahDiminati    String?
+  estimasiCicilan      Float?
+  sourceId             String?
+  campaignId           String?
+  salesId              String?
+  status               LeadStatus   @default(NEW)
+  priority             LeadPriority @default(MEDIUM)
+  tanggalMasuk         DateTime     @default(now())
+  lastContact          DateTime?
+  nextFollowUp         DateTime?
+  notes                String?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  project    Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  source     LeadSource?     @relation(fields: [sourceId], references: [id])
+  campaign   Campaign?       @relation(fields: [campaignId], references: [id])
+  sales      User?           @relation("LeadSales", fields: [salesId], references: [id])
+  activities SalesActivity[]
+  followUps  FollowUp[]
+  surveys    Survey[]
+  bookings   Booking[]
+  tasks      Task[]
+
+  @@index([salesId])
+  @@index([status])
+  @@map("leads")
+}
+
+model SalesActivity {
+  id        String   @id @default(uuid())
+  leadId    String
+  userId    String?
+  type      String
+  note      String?
+  createdAt DateTime @default(now())
+
+  lead Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("sales_activities")
+}
+
+model FollowUp {
+  id            String        @id @default(uuid())
+  leadId        String
+  userId        String
+  scheduledAt   DateTime
+  contactMethod ContactMethod @default(WHATSAPP)
+  notes         String?
+  completedAt   DateTime?
+  createdAt     DateTime      @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([scheduledAt])
+  @@map("follow_ups")
+}
+
+model Survey {
+  id          String    @id @default(uuid())
+  leadId      String
+  unitId      String
+  scheduledAt DateTime
+  completedAt DateTime?
+  result      String?
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  unit Unit @relation(fields: [unitId], references: [id])
+
+  @@map("surveys")
+}
+
+model Booking {
+  id            String               @id @default(uuid())
+  leadId        String
+  unitId        String
+  salesId       String
+  bookingFee    Float
+  price         Float
+  dp            Float
+  paymentStatus BookingPaymentStatus @default(PENDING)
+  bookingDate   DateTime             @default(now())
+  notes         String?
+
+  lead            Lead             @relation(fields: [leadId], references: [id])
+  unit            Unit             @relation(fields: [unitId], references: [id])
+  sales           User             @relation("BookingSales", fields: [salesId], references: [id])
+  payments        BookingPayment[]
+  kprApplications KprApplication[]
+
+  @@map("bookings")
+}
+
+model BookingPayment {
+  id        String   @id @default(uuid())
+  bookingId String
+  amount    Float
+  method    String?
+  paidAt    DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("booking_payments")
+}
+
+model KprApplication {
+  id                   String        @id @default(uuid())
+  bookingId            String
+  unitId               String
+  salesId              String?
+  bank                 String
+  financingType        FinancingType @default(COMMERCIAL)
+  applicationDate      DateTime      @default(now())
+  plafond              Float
+  tenor                Int
+  status               KprStatus     @default(SUBMITTED)
+  mbrEligible          Boolean       @default(false)
+  npwp                 String?
+  suratBelumPunyaRumah Boolean       @default(false)
+  slaDueAt             DateTime?
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  unit    Unit    @relation(fields: [unitId], references: [id])
+  sales   User?   @relation("KprSales", fields: [salesId], references: [id])
+
+  @@map("kpr_applications")
+}
+
+model SalesTarget {
+  id            String  @id @default(uuid())
+  userId        String?
+  projectId     String
+  period        String // e.g. "2026-09" or "2026-Q3"
+  targetUnit    Int?
+  targetBooking Int?
+  targetAkad    Int?
+  targetRevenue Float?
+
+  user    User?   @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId, period])
+  @@map("sales_targets")
+}
+
+model Content {
+  id           String           @id @default(uuid())
+  campaignId   String
+  title        String
+  platform     CampaignPlatform
+  contentType  String?
+  publishDate  DateTime?
+  views        Int              @default(0)
+  reach        Int              @default(0)
+  engagement   Int              @default(0)
+  leadsCount   Int              @default(0)
+  surveyCount  Int              @default(0)
+  bookingCount Int              @default(0)
+  revenue      Float            @default(0)
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("content")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  body      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Task {
+  id       String       @id @default(uuid())
+  leadId   String?
+  userId   String
+  type     TaskType
+  dueDate  DateTime?
+  priority LeadPriority @default(MEDIUM)
+  status   TaskStatus   @default(TODO)
+  notes    String?
+
+  lead Lead? @relation(fields: [leadId], references: [id])
+  user User  @relation(fields: [userId], references: [id])
+
+  @@map("tasks")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  objectType String
+  objectId   String?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
