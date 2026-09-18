@@ -2,10 +2,12 @@ import Link from "next/link";
 import { Megaphone, Target, Image as ImageIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { SOURCE_CHANNEL_LABEL, CAMPAIGN_PLATFORM_LABEL } from "@/lib/labels";
 import { formatCompactRupiah } from "@/lib/utils";
 
 export default async function MarketingPage() {
+  try {
   const [leadsBySource, campaigns, topContent, totalLeads] = await Promise.all([
     prisma.lead.groupBy({ by: ["sourceId"], _count: { _all: true } }),
     prisma.campaign.findMany({
@@ -121,4 +123,7 @@ export default async function MarketingPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Marketing" />;
+  }
 }

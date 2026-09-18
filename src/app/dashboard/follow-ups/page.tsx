@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { FollowUpForm } from "@/components/follow-ups/follow-up-form";
 import { markFollowUpComplete, deleteFollowUp } from "@/actions/follow-ups";
 import { CONTACT_METHOD_LABEL } from "@/lib/labels";
@@ -21,6 +22,7 @@ function formatDateTime(date: Date) {
 }
 
 export default async function FollowUpsPage() {
+  try {
   const session = await getServerSession(authOptions);
   const role = session?.user.role;
   const isSales = role === "SALES";
@@ -153,4 +155,7 @@ export default async function FollowUpsPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Pusat Follow Up" />;
+  }
 }

@@ -4,10 +4,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { KanbanBoard, type KanbanLead } from "@/components/pipeline/kanban-board";
 import { Modal } from "@/components/ui/modal";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { LeadForm } from "@/components/leads/lead-form";
 import { Button } from "@/components/ui/button";
 
 export default async function PipelinePage() {
+  try {
   const session = await getServerSession(authOptions);
   const role = session?.user.role;
   const where = role === "SALES" ? { salesId: session?.user.id } : {};
@@ -65,4 +67,7 @@ export default async function PipelinePage() {
       <KanbanBoard leads={kanbanLeads} canDrag={canDrag} />
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Pipeline Penjualan" />;
+  }
 }

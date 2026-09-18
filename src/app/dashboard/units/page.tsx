@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { UnitStatusBadge } from "@/components/status-badge";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { formatCompactRupiah } from "@/lib/utils";
 import { UNIT_STATUS_LABEL } from "@/lib/labels";
 
 export default async function UnitsPage() {
+  try {
   const blocks = await prisma.block.findMany({
     include: { units: { orderBy: { unitNumber: "asc" } } },
     orderBy: { name: "asc" },
@@ -51,6 +53,9 @@ export default async function UnitsPage() {
       ))}
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Properti & Unit" />;
+  }
 }
 
 function Legend({ color, label }: { color: string; label: string }) {

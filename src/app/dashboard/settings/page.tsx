@@ -4,11 +4,13 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { UserForm } from "@/components/settings/user-form";
 import { toggleUserActive } from "@/actions/users";
 import { ROLE_LABEL } from "@/lib/rbac";
 
 export default async function SettingsPage() {
+  try {
   const users = await prisma.user.findMany({ orderBy: [{ active: "desc" }, { name: "asc" }] });
 
   return (
@@ -91,4 +93,7 @@ export default async function SettingsPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Pengaturan — Manajemen User" />;
+  }
 }

@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { TaskForm } from "@/components/tasks/task-form";
 import { TaskStatusSelect } from "@/components/tasks/task-status-select";
 import { deleteTask } from "@/actions/tasks";
@@ -19,6 +20,7 @@ const PRIORITY_COLOR: Record<string, string> = {
 };
 
 export default async function TasksPage() {
+  try {
   const session = await getServerSession(authOptions);
   const role = session?.user.role;
   const isSales = role === "SALES";
@@ -135,4 +137,7 @@ export default async function TasksPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Manajemen Tugas" />;
+  }
 }

@@ -1,6 +1,7 @@
 import type { LeadStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { RevenueTrendChart, FunnelChart, SalesLeaderboardChart } from "@/components/reports/charts";
 import { LEAD_STATUS_LABEL } from "@/lib/labels";
 import { formatCompactRupiah } from "@/lib/utils";
@@ -12,6 +13,7 @@ function monthKey(d: Date) {
 }
 
 export default async function ReportsPage() {
+  try {
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
   sixMonthsAgo.setDate(1);
@@ -108,4 +110,7 @@ export default async function ReportsPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Laporan" />;
+  }
 }

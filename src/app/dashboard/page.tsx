@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { formatCompactRupiah } from "@/lib/utils";
 import { UNIT_STATUS_LABEL } from "@/lib/labels";
 import {
@@ -26,6 +27,7 @@ const UNIT_STATUS_COLOR: Record<string, string> = {
 };
 
 export default async function DashboardPage() {
+  try {
   const session = await getServerSession(authOptions);
   const firstName = session?.user?.name?.split(" ")[0] ?? "";
 
@@ -194,6 +196,9 @@ export default async function DashboardPage() {
       </Card>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Dashboard" />;
+  }
 }
 
 function SectionLabel({ icon: Icon, text }: { icon: typeof Home; text: string }) {

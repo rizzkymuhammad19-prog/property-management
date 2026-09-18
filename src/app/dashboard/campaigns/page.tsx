@@ -4,12 +4,14 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { CampaignForm } from "@/components/campaigns/campaign-form";
 import { deleteCampaign } from "@/actions/campaigns";
 import { formatDate, formatCompactRupiah } from "@/lib/utils";
 import { CAMPAIGN_PLATFORM_LABEL } from "@/lib/labels";
 
 export default async function CampaignsPage() {
+  try {
   const [campaigns, projects] = await Promise.all([
     prisma.campaign.findMany({
       include: { project: true, leads: { select: { id: true } }, content: { select: { id: true } } },
@@ -102,4 +104,7 @@ export default async function CampaignsPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Kampanye Marketing" />;
+  }
 }

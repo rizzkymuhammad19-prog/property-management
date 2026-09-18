@@ -3,6 +3,7 @@ import { Check, CheckCheck, Trash2 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import {
   markNotificationRead,
   markAllNotificationsRead,
@@ -22,6 +23,7 @@ function timeAgo(date: Date) {
 }
 
 export default async function NotificationsPage() {
+  try {
   const session = await getServerSession(authOptions);
 
   const notifications = await prisma.notification.findMany({
@@ -95,4 +97,7 @@ export default async function NotificationsPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Notifikasi" />;
+  }
 }

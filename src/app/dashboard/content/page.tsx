@@ -4,12 +4,14 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { ContentForm } from "@/components/content/content-form";
 import { deleteContent } from "@/actions/content";
 import { formatDate } from "@/lib/utils";
 import { CAMPAIGN_PLATFORM_LABEL } from "@/lib/labels";
 
 export default async function ContentPage() {
+  try {
   const [contents, campaigns] = await Promise.all([
     prisma.content.findMany({
       include: { campaign: true },
@@ -122,4 +124,7 @@ export default async function ContentPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Manajemen Konten" />;
+  }
 }

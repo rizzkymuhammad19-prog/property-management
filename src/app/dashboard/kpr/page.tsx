@@ -4,6 +4,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { KprForm } from "@/components/kpr/kpr-form";
 import { KprStatusSelect } from "@/components/kpr/kpr-status-select";
 import { deleteKprApplication } from "@/actions/kpr";
@@ -11,6 +12,7 @@ import { formatDate, formatRupiah } from "@/lib/utils";
 import { FINANCING_TYPE_LABEL } from "@/lib/labels";
 
 export default async function KprPage() {
+  try {
   const [applications, bookingsWithoutKpr] = await Promise.all([
     prisma.kprApplication.findMany({
       include: { booking: { include: { lead: true, unit: { include: { block: true } } } } },
@@ -140,4 +142,7 @@ export default async function KprPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Manajemen KPR" />;
+  }
 }

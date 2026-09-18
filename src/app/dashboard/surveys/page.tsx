@@ -6,12 +6,14 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { SurveyForm } from "@/components/surveys/survey-form";
 import { CompleteSurveyForm } from "@/components/surveys/complete-survey-form";
 import { deleteSurvey } from "@/actions/surveys";
 import { formatDate, toDatetimeLocal } from "@/lib/utils";
 
 export default async function SurveysPage() {
+  try {
   const session = await getServerSession(authOptions);
   const role = session?.user.role;
   const isSales = role === "SALES";
@@ -143,4 +145,7 @@ export default async function SurveysPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Survei" />;
+  }
 }

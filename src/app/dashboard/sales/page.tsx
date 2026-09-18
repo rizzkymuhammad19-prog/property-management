@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { SalesTargetForm } from "@/components/sales/sales-target-form";
 import { deleteSalesTarget } from "@/actions/sales-targets";
 import { formatCompactRupiah } from "@/lib/utils";
@@ -13,6 +14,7 @@ function currentPeriod() {
 }
 
 export default async function SalesPage() {
+  try {
   const period = currentPeriod();
 
   const [salesUsers, projects, targets] = await Promise.all([
@@ -156,4 +158,7 @@ export default async function SalesPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Manajemen & KPI Sales" />;
+  }
 }

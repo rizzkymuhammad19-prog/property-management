@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { BookingForm } from "@/components/bookings/booking-form";
 import { PaymentForm } from "@/components/bookings/payment-form";
 import { deleteBooking } from "@/actions/bookings";
@@ -19,6 +20,7 @@ const PAYMENT_STATUS_COLOR: Record<string, string> = {
 };
 
 export default async function BookingsPage() {
+  try {
   const session = await getServerSession(authOptions);
   const role = session?.user.role;
   const isSales = role === "SALES";
@@ -175,4 +177,7 @@ export default async function BookingsPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Manajemen Booking" />;
+  }
 }

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { ActionButton } from "@/components/action-button";
+import { ErrorPanel } from "@/components/ui/error-panel";
 import { LeadForm } from "@/components/leads/lead-form";
 import { deleteLead } from "@/actions/leads";
 import { formatDate } from "@/lib/utils";
@@ -30,6 +31,7 @@ const PRIORITY_COLOR: Record<string, string> = {
 };
 
 export default async function LeadsPage() {
+  try {
   const session = await getServerSession(authOptions);
   const role = session?.user.role;
 
@@ -162,4 +164,7 @@ export default async function LeadsPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    return <ErrorPanel error={error} label="Leads (CRM)" />;
+  }
 }
