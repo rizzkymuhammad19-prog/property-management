@@ -21,7 +21,9 @@ export function BookingForm({
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [selectedUnit, setSelectedUnit] = useState(units[0]);
+  const [selectedUnit, setSelectedUnit] = useState<
+    { id: string; label: string; price: number; dp: number } | undefined
+  >(units[0]);
   const router = useRouter();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
