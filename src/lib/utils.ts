@@ -30,3 +30,26 @@ export function formatDate(date: Date | string | null | undefined): string {
     year: "numeric",
   }).format(d);
 }
+
+// Formats a Date into the "yyyy-MM-dd" shape required as the defaultValue
+// of an <input type="date"> field.
+export function toDateInput(date: Date | string | null | undefined): string {
+  if (!date) return "";
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+// Formats a Date into the "yyyy-MM-ddTHH:mm" shape required as the
+// defaultValue of an <input type="datetime-local"> field, using local time
+// (not UTC) so the pre-filled value matches what the user originally picked.
+export function toDatetimeLocal(date: Date | string | null | undefined): string {
+  if (!date) return "";
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(
+    d.getMinutes()
+  )}`;
+}

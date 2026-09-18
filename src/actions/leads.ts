@@ -70,6 +70,38 @@ export async function createLead(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
+export async function updateLead(leadId: string, formData: FormData) {
+  const { session } = await assertLeadAccess(leadId);
+
+  const name = String(formData.get("name") ?? "").trim();
+  const whatsapp = String(formData.get("whatsapp") ?? "").trim();
+  if (!name || !whatsapp) throw new Error("Nama dan WhatsApp wajib diisi.");
+
+  const salesId =
+    session.user.role === "SALES" ? session.user.id : String(formData.get("salesId") ?? "") || null;
+
+  await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      name,
+      whatsapp,
+      email: String(formData.get("email") ?? "") || null,
+      domisili: String(formData.get("domisili") ?? "") || null,
+      pekerjaan: String(formData.get("pekerjaan") ?? "") || null,
+      budget: numOrNull(formData.get("budget")),
+      tipeRumahDiminati: String(formData.get("tipeRumahDiminati") ?? "") || null,
+      sourceId: String(formData.get("sourceId") ?? "") || null,
+      salesId,
+      priority: (String(formData.get("priority") ?? "MEDIUM") || "MEDIUM") as LeadPriority,
+      notes: String(formData.get("notes") ?? "") || null,
+    },
+  });
+
+  revalidatePath("/dashboard/leads");
+  revalidatePath("/dashboard/pipeline");
+  revalidatePath("/dashboard");
+}
+
 export async function deleteLead(leadId: string) {
   const session = await requireSession();
   if (!["SUPER_ADMIN", "OWNER", "SALES_MANAGER", "ADMIN"].includes(session.user.role)) {

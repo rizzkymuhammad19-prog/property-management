@@ -2,25 +2,38 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createTask } from "@/actions/tasks";
+import { createTask, updateTask } from "@/actions/tasks";
 import { Field, TextInput, Select, Textarea, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import { TASK_TYPE_LABEL } from "@/lib/labels";
+
+type TaskDefaults = {
+  id?: string;
+  type?: string;
+  priority?: string;
+  leadId?: string | null;
+  dueDate?: string;
+  userId?: string | null;
+  notes?: string | null;
+};
 
 export function TaskForm({
   onDone,
   leads,
   users,
   showAssignee,
+  defaults,
 }: {
   onDone: () => void;
   leads: { id: string; name: string }[];
   users: { id: string; name: string }[];
   showAssignee: boolean;
+  defaults?: TaskDefaults;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,7 +41,11 @@ export function TaskForm({
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
       try {
-        await createTask(formData);
+        if (isEdit && defaults?.id) {
+          await updateTask(defaults.id, formData);
+        } else {
+          await createTask(formData);
+        }
         onDone();
         router.refresh();
       } catch (err) {
@@ -41,7 +58,7 @@ export function TaskForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <Field label="Jenis Tugas" required>
-          <Select name="type" required defaultValue="CALL">
+          <Select name="type" required defaultValue={defaults?.type ?? "CALL"}>
             {Object.entries(TASK_TYPE_LABEL).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -50,14 +67,14 @@ export function TaskForm({
           </Select>
         </Field>
         <Field label="Prioritas">
-          <Select name="priority" defaultValue="MEDIUM">
+          <Select name="priority" defaultValue={defaults?.priority ?? "MEDIUM"}>
             <option value="LOW">Rendah</option>
             <option value="MEDIUM">Sedang</option>
             <option value="HIGH">Tinggi</option>
           </Select>
         </Field>
         <Field label="Terkait Lead">
-          <Select name="leadId" defaultValue="">
+          <Select name="leadId" defaultValue={defaults?.leadId ?? ""}>
             <option value="">- Tidak terkait -</option>
             {leads.map((l) => (
               <option key={l.id} value={l.id}>
@@ -67,11 +84,11 @@ export function TaskForm({
           </Select>
         </Field>
         <Field label="Jatuh Tempo">
-          <TextInput name="dueDate" type="date" />
+          <TextInput name="dueDate" type="date" defaultValue={defaults?.dueDate ?? ""} />
         </Field>
         {showAssignee && (
           <Field label="Ditugaskan ke" className="col-span-2">
-            <Select name="userId" defaultValue="">
+            <Select name="userId" defaultValue={defaults?.userId ?? ""}>
               <option value="">- Saya sendiri -</option>
               {users.map((u) => (
                 <option key={u.id} value={u.id}>
@@ -82,7 +99,7 @@ export function TaskForm({
           </Field>
         )}
         <Field label="Catatan" className="col-span-2">
-          <Textarea name="notes" placeholder="Detail tugas (opsional)" />
+          <Textarea name="notes" defaultValue={defaults?.notes ?? ""} placeholder="Detail tugas (opsional)" />
         </Field>
       </div>
 
@@ -93,7 +110,7 @@ export function TaskForm({
           Batal
         </Button>
         <Button type="submit" disabled={pending}>
-          {pending ? "Menyimpan..." : "Tambah Tugas"}
+          {pending ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Tambah Tugas"}
         </Button>
       </div>
     </form>

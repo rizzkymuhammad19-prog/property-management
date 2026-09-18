@@ -42,6 +42,33 @@ async function assertOwnTask(taskId: string) {
   return task;
 }
 
+export async function updateTask(taskId: string, formData: FormData) {
+  const session = await requireSession();
+  const existing = await assertOwnTask(taskId);
+
+  const type = String(formData.get("type") ?? "") as TaskType;
+  if (!type) throw new Error("Jenis tugas wajib dipilih.");
+
+  const dueDateRaw = String(formData.get("dueDate") ?? "");
+  const leadId = String(formData.get("leadId") ?? "") || null;
+  const assignedTo =
+    session.user.role === "SALES" ? existing.userId : String(formData.get("userId") ?? existing.userId) || existing.userId;
+
+  await prisma.task.update({
+    where: { id: taskId },
+    data: {
+      leadId,
+      userId: assignedTo,
+      type,
+      dueDate: dueDateRaw ? new Date(dueDateRaw) : null,
+      priority: (String(formData.get("priority") ?? "MEDIUM") as LeadPriority) || "MEDIUM",
+      notes: String(formData.get("notes") ?? "") || null,
+    },
+  });
+
+  revalidatePath("/dashboard/tasks");
+}
+
 export async function updateTaskStatus(taskId: string, status: TaskStatus) {
   await assertOwnTask(taskId);
   await prisma.task.update({ where: { id: taskId }, data: { status } });

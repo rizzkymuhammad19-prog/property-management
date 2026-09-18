@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
@@ -94,7 +94,7 @@ export default async function LeadsPage() {
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Follow Up Berikutnya</th>
               <th className="px-4 py-3">Prioritas</th>
-              {canDelete && <th className="px-4 py-3" />}
+              <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -116,16 +116,51 @@ export default async function LeadsPage() {
                     {LEAD_PRIORITY_LABEL[lead.priority] ?? lead.priority}
                   </Badge>
                 </td>
-                {canDelete && (
-                  <td className="px-4 py-3">
-                    <ActionButton
-                      action={deleteLead.bind(null, lead.id)}
-                      confirmMessage={`Hapus lead "${lead.name}"? Aksi ini tidak bisa dibatalkan.`}
-                      icon={Trash2}
-                      variant="danger"
-                    />
-                  </td>
-                )}
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1">
+                    <Modal
+                      title="Edit Lead"
+                      size="lg"
+                      trigger={
+                        <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-500 hover:bg-surface-muted">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </span>
+                      }
+                    >
+                      {(close) => (
+                        <LeadForm
+                          onDone={close}
+                          projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+                          sources={sources.map((s) => ({ id: s.id, name: s.name }))}
+                          salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+                          showSalesPicker={role !== "SALES"}
+                          defaults={{
+                            id: lead.id,
+                            name: lead.name,
+                            whatsapp: lead.whatsapp,
+                            email: lead.email,
+                            domisili: lead.domisili,
+                            pekerjaan: lead.pekerjaan,
+                            budget: lead.budget,
+                            tipeRumahDiminati: lead.tipeRumahDiminati,
+                            sourceId: lead.sourceId,
+                            salesId: lead.salesId,
+                            priority: lead.priority,
+                            notes: lead.notes,
+                          }}
+                        />
+                      )}
+                    </Modal>
+                    {canDelete && (
+                      <ActionButton
+                        action={deleteLead.bind(null, lead.id)}
+                        confirmMessage={`Hapus lead "${lead.name}"? Aksi ini tidak bisa dibatalkan.`}
+                        icon={Trash2}
+                        variant="danger"
+                      />
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

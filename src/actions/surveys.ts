@@ -45,6 +45,27 @@ async function assertAccess(surveyId: string) {
   return survey;
 }
 
+export async function updateSurvey(surveyId: string, formData: FormData) {
+  await assertAccess(surveyId);
+
+  const unitId = String(formData.get("unitId") ?? "");
+  const scheduledAtRaw = String(formData.get("scheduledAt") ?? "");
+  if (!unitId || !scheduledAtRaw) {
+    throw new Error("Unit dan jadwal wajib diisi.");
+  }
+
+  await prisma.survey.update({
+    where: { id: surveyId },
+    data: {
+      unitId,
+      scheduledAt: new Date(scheduledAtRaw),
+    },
+  });
+
+  revalidatePath("/dashboard/surveys");
+  revalidatePath("/dashboard");
+}
+
 export async function completeSurvey(surveyId: string, formData: FormData) {
   await assertAccess(surveyId);
   const result = String(formData.get("result") ?? "").trim();

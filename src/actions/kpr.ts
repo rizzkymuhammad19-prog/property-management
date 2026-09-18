@@ -53,6 +53,41 @@ export async function createKprApplication(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
+export async function updateKprApplication(kprId: string, formData: FormData) {
+  await requireRole([...ALLOWED_ROLES]);
+
+  const existing = await prisma.kprApplication.findUnique({ where: { id: kprId } });
+  if (!existing) throw new Error("Pengajuan KPR tidak ditemukan.");
+
+  const bank = String(formData.get("bank") ?? "").trim();
+  if (!bank) throw new Error("Nama bank wajib diisi.");
+
+  const slaDaysRaw = formData.get("slaDays");
+  let slaDueAt = existing.slaDueAt;
+  if (slaDaysRaw !== null && String(slaDaysRaw) !== "") {
+    const slaDays = Number(slaDaysRaw) || 14;
+    slaDueAt = new Date(existing.applicationDate);
+    slaDueAt.setDate(slaDueAt.getDate() + slaDays);
+  }
+
+  await prisma.kprApplication.update({
+    where: { id: kprId },
+    data: {
+      bank,
+      financingType: (String(formData.get("financingType") ?? "COMMERCIAL") as FinancingType) || "COMMERCIAL",
+      plafond: num(formData.get("plafond")) || existing.plafond,
+      tenor: Math.round(num(formData.get("tenor"))) || existing.tenor,
+      mbrEligible: formData.get("mbrEligible") === "on",
+      npwp: String(formData.get("npwp") ?? "") || null,
+      suratBelumPunyaRumah: formData.get("suratBelumPunyaRumah") === "on",
+      slaDueAt,
+    },
+  });
+
+  revalidatePath("/dashboard/kpr");
+  revalidatePath("/dashboard");
+}
+
 export async function updateKprStatus(kprId: string, status: KprStatus) {
   await requireRole([...ALLOWED_ROLES]);
 

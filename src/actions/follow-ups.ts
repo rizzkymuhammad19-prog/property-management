@@ -51,6 +51,28 @@ async function assertOwnFollowUp(followUpId: string) {
   return followUp;
 }
 
+export async function updateFollowUp(followUpId: string, formData: FormData) {
+  await assertOwnFollowUp(followUpId);
+
+  const scheduledAtRaw = String(formData.get("scheduledAt") ?? "");
+  if (!scheduledAtRaw) throw new Error("Jadwal wajib diisi.");
+
+  const scheduledAt = new Date(scheduledAtRaw);
+
+  await prisma.followUp.update({
+    where: { id: followUpId },
+    data: {
+      scheduledAt,
+      contactMethod: (String(formData.get("contactMethod") ?? "WHATSAPP") as ContactMethod) || "WHATSAPP",
+      notes: String(formData.get("notes") ?? "") || null,
+    },
+  });
+
+  revalidatePath("/dashboard/follow-ups");
+  revalidatePath("/dashboard/leads");
+  revalidatePath("/dashboard");
+}
+
 export async function markFollowUpComplete(followUpId: string) {
   await assertOwnFollowUp(followUpId);
   await prisma.followUp.update({

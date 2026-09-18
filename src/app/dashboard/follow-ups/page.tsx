@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { CheckCircle2, Pencil, Plus, Trash2 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Modal } from "@/components/ui/modal";
@@ -9,7 +9,7 @@ import { ActionButton } from "@/components/action-button";
 import { FollowUpForm } from "@/components/follow-ups/follow-up-form";
 import { markFollowUpComplete, deleteFollowUp } from "@/actions/follow-ups";
 import { CONTACT_METHOD_LABEL } from "@/lib/labels";
-import { cn } from "@/lib/utils";
+import { cn, toDatetimeLocal } from "@/lib/utils";
 
 function formatDateTime(date: Date) {
   return new Intl.DateTimeFormat("id-ID", {
@@ -103,6 +103,28 @@ export default async function FollowUpsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
+                      <Modal
+                        title="Edit Follow Up"
+                        trigger={
+                          <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-500 hover:bg-surface-muted">
+                            <Pencil className="h-3.5 w-3.5" />
+                          </span>
+                        }
+                      >
+                        {(close) => (
+                          <FollowUpForm
+                            onDone={close}
+                            leads={leads}
+                            defaults={{
+                              id: f.id,
+                              leadId: f.leadId,
+                              scheduledAt: toDatetimeLocal(f.scheduledAt),
+                              contactMethod: f.contactMethod,
+                              notes: f.notes,
+                            }}
+                          />
+                        )}
+                      </Modal>
                       {!f.completedAt && (
                         <ActionButton
                           action={markFollowUpComplete.bind(null, f.id)}

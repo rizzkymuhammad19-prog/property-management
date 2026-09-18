@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { ClipboardCheck, Plus, Trash2 } from "lucide-react";
+import { ClipboardCheck, Pencil, Plus, Trash2 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Modal } from "@/components/ui/modal";
@@ -9,7 +9,7 @@ import { ActionButton } from "@/components/action-button";
 import { SurveyForm } from "@/components/surveys/survey-form";
 import { CompleteSurveyForm } from "@/components/surveys/complete-survey-form";
 import { deleteSurvey } from "@/actions/surveys";
-import { formatDate } from "@/lib/utils";
+import { formatDate, toDatetimeLocal } from "@/lib/utils";
 
 export default async function SurveysPage() {
   const session = await getServerSession(authOptions);
@@ -88,6 +88,29 @@ export default async function SurveysPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
+                    <Modal
+                      title="Edit Survei"
+                      description={`Lead: ${s.lead.name}`}
+                      trigger={
+                        <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-500 hover:bg-surface-muted">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </span>
+                      }
+                    >
+                      {(close) => (
+                        <SurveyForm
+                          onDone={close}
+                          leads={leads}
+                          units={unitOptions}
+                          defaults={{
+                            id: s.id,
+                            leadId: s.leadId,
+                            unitId: s.unitId,
+                            scheduledAt: toDatetimeLocal(s.scheduledAt),
+                          }}
+                        />
+                      )}
+                    </Modal>
                     {!s.completedAt && (
                       <Modal
                         title="Tandai Survei Selesai"

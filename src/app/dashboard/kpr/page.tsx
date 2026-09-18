@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
@@ -92,12 +92,44 @@ export default async function KprPage() {
                     <KprStatusSelect kprId={k.id} status={k.status} />
                   </td>
                   <td className="px-4 py-3">
-                    <ActionButton
-                      action={deleteKprApplication.bind(null, k.id)}
-                      confirmMessage="Hapus pengajuan KPR ini?"
-                      icon={Trash2}
-                      variant="danger"
-                    />
+                    <div className="flex items-center gap-1">
+                      <Modal
+                        title="Edit Pengajuan KPR"
+                        size="lg"
+                        description={`${k.booking.lead.name} — Blok ${k.booking.unit.block.name} No. ${k.booking.unit.unitNumber}`}
+                        trigger={
+                          <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-500 hover:bg-surface-muted">
+                            <Pencil className="h-3.5 w-3.5" />
+                          </span>
+                        }
+                      >
+                        {(close) => (
+                          <KprForm
+                            onDone={close}
+                            bookings={bookingsWithoutKpr.map((b) => ({
+                              id: b.id,
+                              label: `${b.lead.name} — Blok ${b.unit.block.name} No. ${b.unit.unitNumber}`,
+                            }))}
+                            defaults={{
+                              id: k.id,
+                              bank: k.bank,
+                              financingType: k.financingType,
+                              plafond: k.plafond,
+                              tenor: k.tenor,
+                              npwp: k.npwp,
+                              mbrEligible: k.mbrEligible,
+                              suratBelumPunyaRumah: k.suratBelumPunyaRumah,
+                            }}
+                          />
+                        )}
+                      </Modal>
+                      <ActionButton
+                        action={deleteKprApplication.bind(null, k.id)}
+                        confirmMessage="Hapus pengajuan KPR ini?"
+                        icon={Trash2}
+                        variant="danger"
+                      />
+                    </div>
                   </td>
                 </tr>
               );

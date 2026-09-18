@@ -2,22 +2,32 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createSurvey } from "@/actions/surveys";
+import { createSurvey, updateSurvey } from "@/actions/surveys";
 import { Field, TextInput, Select, FormError } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+
+type SurveyDefaults = {
+  id?: string;
+  leadId?: string;
+  unitId?: string;
+  scheduledAt?: string;
+};
 
 export function SurveyForm({
   onDone,
   leads,
   units,
+  defaults,
 }: {
   onDone: () => void;
   leads: { id: string; name: string }[];
   units: { id: string; label: string }[];
+  defaults?: SurveyDefaults;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const isEdit = Boolean(defaults?.id);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,7 +35,11 @@ export function SurveyForm({
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
       try {
-        await createSurvey(formData);
+        if (isEdit && defaults?.id) {
+          await updateSurvey(defaults.id, formData);
+        } else {
+          await createSurvey(formData);
+        }
         onDone();
         router.refresh();
       } catch (err) {
@@ -36,20 +50,22 @@ export function SurveyForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Field label="Lead" required>
-        <Select name="leadId" required defaultValue="">
-          <option value="" disabled>
-            - Pilih lead -
-          </option>
-          {leads.map((l) => (
-            <option key={l.id} value={l.id}>
-              {l.name}
+      {!isEdit && (
+        <Field label="Lead" required>
+          <Select name="leadId" required defaultValue="">
+            <option value="" disabled>
+              - Pilih lead -
             </option>
-          ))}
-        </Select>
-      </Field>
+            {leads.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
       <Field label="Unit yang Disurvei" required>
-        <Select name="unitId" required defaultValue="">
+        <Select name="unitId" required defaultValue={defaults?.unitId ?? ""}>
           <option value="" disabled>
             - Pilih unit -
           </option>
@@ -61,7 +77,7 @@ export function SurveyForm({
         </Select>
       </Field>
       <Field label="Jadwal Survei" required>
-        <TextInput name="scheduledAt" type="datetime-local" required />
+        <TextInput name="scheduledAt" type="datetime-local" required defaultValue={defaults?.scheduledAt} />
       </Field>
 
       <FormError message={error} />
@@ -71,7 +87,7 @@ export function SurveyForm({
           Batal
         </Button>
         <Button type="submit" disabled={pending}>
-          {pending ? "Menyimpan..." : "Jadwalkan Survei"}
+          {pending ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Jadwalkan Survei"}
         </Button>
       </div>
     </form>

@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { CreditCard, Plus, Trash2 } from "lucide-react";
+import { CreditCard, Pencil, Plus, Trash2 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Modal } from "@/components/ui/modal";
@@ -116,6 +116,33 @@ export default async function BookingsPage() {
                   <td className="px-4 py-3 text-gray-500">{formatDate(b.bookingDate)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
+                      <Modal
+                        title="Edit Booking"
+                        size="lg"
+                        description={`${b.lead.name} — Blok ${b.unit.block.name} No. ${b.unit.unitNumber}`}
+                        trigger={
+                          <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-500 hover:bg-surface-muted">
+                            <Pencil className="h-3.5 w-3.5" />
+                          </span>
+                        }
+                      >
+                        {(close) => (
+                          <BookingForm
+                            onDone={close}
+                            leads={leads}
+                            units={unitOptions}
+                            salesUsers={salesUsers.map((s) => ({ id: s.id, name: s.name }))}
+                            showSalesPicker={!isSales}
+                            defaults={{
+                              id: b.id,
+                              bookingFee: b.bookingFee,
+                              price: b.price,
+                              dp: b.dp,
+                              notes: b.notes,
+                            }}
+                          />
+                        )}
+                      </Modal>
                       {b.paymentStatus !== "PAID" && (
                         <Modal
                           title="Catat Pembayaran DP"

@@ -66,6 +66,26 @@ async function assertBookingAccess(bookingId: string) {
   return booking;
 }
 
+export async function updateBooking(bookingId: string, formData: FormData) {
+  await assertBookingAccess(bookingId);
+
+  const bookingFee = num(formData.get("bookingFee"));
+  if (bookingFee <= 0) throw new Error("Booking fee harus lebih dari 0.");
+
+  await prisma.booking.update({
+    where: { id: bookingId },
+    data: {
+      bookingFee,
+      price: num(formData.get("price")) || undefined,
+      dp: num(formData.get("dp")) || undefined,
+      notes: String(formData.get("notes") ?? "") || null,
+    },
+  });
+
+  revalidatePath("/dashboard/bookings");
+  revalidatePath("/dashboard");
+}
+
 export async function addBookingPayment(bookingId: string, formData: FormData) {
   const booking = await assertBookingAccess(bookingId);
   const amount = num(formData.get("amount"));

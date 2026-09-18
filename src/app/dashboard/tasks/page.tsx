@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Modal } from "@/components/ui/modal";
@@ -9,7 +9,7 @@ import { ActionButton } from "@/components/action-button";
 import { TaskForm } from "@/components/tasks/task-form";
 import { TaskStatusSelect } from "@/components/tasks/task-status-select";
 import { deleteTask } from "@/actions/tasks";
-import { formatDate } from "@/lib/utils";
+import { formatDate, toDateInput } from "@/lib/utils";
 import { TASK_TYPE_LABEL, LEAD_PRIORITY_LABEL } from "@/lib/labels";
 
 const PRIORITY_COLOR: Record<string, string> = {
@@ -92,12 +92,40 @@ export default async function TasksPage() {
                   <TaskStatusSelect taskId={t.id} status={t.status} />
                 </td>
                 <td className="px-4 py-3">
-                  <ActionButton
-                    action={deleteTask.bind(null, t.id)}
-                    confirmMessage="Hapus tugas ini?"
-                    icon={Trash2}
-                    variant="danger"
-                  />
+                  <div className="flex items-center gap-1">
+                    <Modal
+                      title="Edit Tugas"
+                      trigger={
+                        <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-500 hover:bg-surface-muted">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </span>
+                      }
+                    >
+                      {(close) => (
+                        <TaskForm
+                          onDone={close}
+                          leads={leads}
+                          users={users.map((u) => ({ id: u.id, name: u.name }))}
+                          showAssignee={!isSales}
+                          defaults={{
+                            id: t.id,
+                            type: t.type,
+                            priority: t.priority,
+                            leadId: t.leadId,
+                            dueDate: toDateInput(t.dueDate),
+                            userId: t.userId,
+                            notes: t.notes,
+                          }}
+                        />
+                      )}
+                    </Modal>
+                    <ActionButton
+                      action={deleteTask.bind(null, t.id)}
+                      confirmMessage="Hapus tugas ini?"
+                      icon={Trash2}
+                      variant="danger"
+                    />
+                  </div>
                 </td>
               </tr>
             ))}
