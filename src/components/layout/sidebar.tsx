@@ -145,7 +145,7 @@ export function Sidebar({
 
       <div className="mx-3 mb-4 rounded-xl border border-white/5 bg-white/5 px-3 py-2.5">
         <p className="text-[10.5px] leading-relaxed text-navy-300">
-          Fase 2–6 · Scaffold aplikasi. Modul lain menyusul di fase berikutnya.
+          Semua modul aktif dan siap digunakan.
         </p>
       </div>
     </>
